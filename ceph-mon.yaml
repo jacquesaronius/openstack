@@ -1,0 +1,3 @@
+ceph-mon:
+  expected-osd-count: 1
+  monitor-count: 1
