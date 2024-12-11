@@ -12,16 +12,16 @@ juju add-machine ssh:jacques@192.168.64.3
 juju switch cathouse-controller:openstack
 
 # Install Ceph
-juju deploy -n 1 --to 1 --channel reef/stable --config ceph-osd.yaml --constraints tags=compute ceph-osd
+juju deploy -n 1 --to 0 --channel reef/stable --config ceph-osd.yaml --constraints tags=compute ceph-osd
 
 # Install Nova
-juju deploy -n 1 --to 1 --channel 2023.2/stable --config nova-compute.yaml nova-compute
+juju deploy -n 1 --to 0 --channel 2023.2/stable --config nova-compute.yaml nova-compute
 
 # Install MySQL cluster
-juju deploy -n 3 --to lxd:1, lxd:1, lxd:1 --channel 8.0/stable mysql-innodb-cluster
+juju deploy -n 1 --to lxd:0 --channel 8.0/stable mysql-innodb-cluster
 
 # Install Vault
-juju deploy --to lxd:1 --channel 1.8/stable vault
+juju deploy --to lxd:0 --channel 1.8/stable vault
 
 # Join Vault to MySQL cluster
 juju deploy --channel 8.0/stable mysql-router vault-mysql-router
@@ -33,7 +33,7 @@ juju integrate vault-mysql-router:shared-db vault:shared-db
 # Initialize vault
 sudo snap install vault
 export VAULT_ADDR="http://<vault ip address>:8200"
-vault operator init -key-shares=5 -key-threshold=3
+vault operator init -key-shares=5 -key-threshold=3 > vault.txt
 
 ### STOP HERE TO GET VAULT KEYS ###
 
@@ -58,8 +58,8 @@ juju integrate mysql-innodb-cluster:certificates vault:certificates
 juju run vault/leader generate-root-ca
 
 # Install Neutron
-juju deploy -n 1 --to lxd:1 --channel 23.09/stable ovn-central
-juju deploy --to lxd:1 --channel 2023.2/stable --config neutron.yaml neutron-api
+juju deploy -n 1 --to lxd:0 --channel 23.09/stable ovn-central
+juju deploy --to lxd:0 --channel 2023.2/stable --config neutron.yaml neutron-api
 juju deploy --channel 2023.2/stable neutron-api-plugin-ovn
 juju deploy --channel 23.09/stable --config neutron.yaml ovn-chassis
 
@@ -77,7 +77,7 @@ juju integrate neutron-api-mysql-router:db-router mysql-innodb-cluster:db-router
 juju integrate neutron-api-mysql-router:shared-db neutron-api:shared-db
 
 # Deploy keystone
-juju deploy --to lxd:1 --channel 2023.2/stable keystone
+juju deploy --to lxd:0 --channel 2023.2/stable keystone
 
 # Integrate Keystone with database
 juju deploy --channel 8.0/stable mysql-router keystone-mysql-router
@@ -89,14 +89,14 @@ juju integrate keystone:identity-service neutron-api:identity-service
 juju integrate keystone:certificates vault:certificates
 
 # Install RabbitMQ
-juju deploy --to lxd:1 --channel 3.9/stable rabbitmq-server
+juju deploy --to lxd:0 --channel 3.9/stable rabbitmq-server
 
 # Install RabbitMQ Integrations
 juju integrate rabbitmq-server:amqp neutron-api:amqp
 juju integrate rabbitmq-server:amqp nova-compute:amqp
 
 # Deploy Nova cloud controller
-juju deploy --to lxd:1 --channel 2023.2/stable --config ncc.yaml nova-cloud-controller
+juju deploy --to lxd:0 --channel 2023.2/stable --config ncc.yaml nova-cloud-controller
 
 # Add Nova cloud controller to the database
 juju deploy --channel 8.0/stable mysql-router ncc-mysql-router
@@ -111,7 +111,7 @@ juju integrate nova-cloud-controller:cloud-compute nova-compute:cloud-compute
 juju integrate nova-cloud-controller:certificates vault:certificates
 
 # Install Placement
-juju deploy --to lxd:1 --channel 2023.2/stable placement
+juju deploy --to lxd:0 --channel 2023.2/stable placement
 
 # Join Placement to database
 juju deploy --channel 8.0/stable mysql-router placement-mysql-router
@@ -124,7 +124,7 @@ juju integrate placement:placement nova-cloud-controller:placement
 juju integrate placement:certificates vault:certificates
 
 # Install OpenStack dashboard
-juju deploy --to lxd:1 --channel 2023.2/stable openstack-dashboard
+juju deploy --to lxd:0 --channel 2023.2/stable openstack-dashboard
 
 # Join OpenStack dashboard to the database
 juju deploy --channel 8.0/stable mysql-router dashboard-mysql-router
@@ -136,7 +136,7 @@ juju integrate openstack-dashboard:identity-service keystone:identity-service
 juju integrate openstack-dashboard:certificates vault:certificates
 
 # Install Glance
-juju deploy --to lxd:1 --channel 2023.2/stable glance
+juju deploy --to lxd:0 --channel 2023.2/stable glance
 
 # Join Glance to database
 juju deploy --channel 8.0/stable mysql-router glance-mysql-router
@@ -150,7 +150,7 @@ juju integrate glance:identity-service keystone:identity-service
 juju integrate glance:certificates vault:certificates
 
 # Install ceph-mon
-juju deploy -n 1 --to lxd:1 --channel reef/stable --config ceph-mon.yaml ceph-mon
+juju deploy -n 1 --to lxd:0 --channel reef/stable --config ceph-mon.yaml ceph-mon
 
 # Install ceph-mon Integrations
 juju integrate ceph-mon:osd ceph-osd:mon
@@ -158,7 +158,7 @@ juju integrate ceph-mon:client nova-compute:ceph
 juju integrate ceph-mon:client glance:ceph
 
 # Deploy Cinder
-juju deploy --to lxd:1 --channel 2023.2/stable --config cinder.yaml cinder
+juju deploy --to lxd:0 --channel 2023.2/stable --config cinder.yaml cinder
 
 # Join Cinder to database
 juju deploy --channel 8.0/stable mysql-router cinder-mysql-router
