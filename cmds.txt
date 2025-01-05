@@ -1,4 +1,7 @@
 
+# Get authentication credentials
+source ./auth.sh
+
 # Add Openstack repository
 sudo add-apt-repository cloud-archive:caracal
 
@@ -7,13 +10,17 @@ sudo add-apt-repository cloud-archive:caracal
 # Install MySQL
 sudo apt install mariadb-server -y
 
-# Create database variables for keystone
-KEYSTONE_DB=keystone
-KEYSTONE_DBUSER=keystone
-KEYSTONE_DBPASS='a&7G!jKs8#Qp'
-
 # Create keystone database and user
 echo "DROP DATABASE IF EXISTS $KEYSTONE_DB; CREATE DATABASE $KEYSTONE_DB; GRANT ALL PRIVILEGES ON $KEYSTONE_DB.* TO '$KEYSTONE_DBUSER'@'localhost' IDENTIFIED BY '$KEYSTONE_DBPASS'; " | sudo mysql -u root
 
 # Install keystone
 sudo apt install keystone -y
+
+# Back up the original configuration file if backup doesn't exist
+if [ ! -f /etc/keystone/keystone.conf.bak ]; then
+    cp /etc/keystone/keystone.conf /etc/keystone/keystone.conf.bak
+fi
+
+# Update configuration for database authentication and token provider
+sed -ie "s|^connection\s=\ssqlite.*|connection = mysql+pymysql://$KEYSTONE_DBUSER:${KEYSTONE_DBPASS//&/\\&}@$HOSTNAME/$KEYSTONE_DB|"
+    -e 's/^#provider = fernet/provider = fernet/' /etc/keystone/keystone.conf
