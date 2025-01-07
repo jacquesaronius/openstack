@@ -5,6 +5,9 @@ source ./auth.sh
 # Add Openstack repository
 sudo add-apt-repository cloud-archive:caracal
 
+### Install Openstack Python client ###
+sudo apt install python3-openstackclient -y
+
 ### Install and configure keystone ###
 
 # Install MySQL
@@ -22,5 +25,32 @@ if [ ! -f /etc/keystone/keystone.conf.bak ]; then
 fi
 
 # Update configuration for database authentication and token provider
-sed -ie "s|^connection\s=\ssqlite.*|connection = mysql+pymysql://$KEYSTONE_DBUSER:${KEYSTONE_DBPASS//&/\\&}@$HOSTNAME/$KEYSTONE_DB|" \
-    -e 's/^#provider = fernet/provider = fernet/' /etc/keystone/keystone.conf
+sed -i -e "s|^connection\s=\ssqlite.*|connection = mysql+pymysql://$KEYSTONE_DBUSER:${KEYSTONE_DBPASS//&/\\&}@$HOSTNAME/$KEYSTONE_DB|" \
+       -e 's/^#provider = fernet/provider = fernet/' /etc/keystone/keystone.conf
+
+# Populate the keystone database
+su -s /bin/sh -c "keystone-manage db_sync" $KEYSTONE_DB
+
+# Initialize Fernet key repositories
+keystone-manage fernet_setup --keystone-user $KEYSTONE_USER --keystone-group $KEYSTONE_GROUP
+keystone-manage credential_setup --keystone-user $KEYSTONE_USER --keystone-group $KEYSTONE_GROUP
+
+# Bootstrap the keystone service
+keystone-manage bootstrap --bootstrap-password $KEYSTONE_ADMIN_PASS \
+  --bootstrap-admin-url http://$HOSTNAME:5000/v3/ \
+  --bootstrap-internal-url http://$HOSTNAME:5000/v3/ \
+  --bootstrap-public-url http://$HOSTNAME:5000/v3/ \
+  --bootstrap-region-id $REGION
+
+# Back up original Apache configuration file if backup doesn't exist
+if [ ! -f /etc/apache2/apache2.conf.bak ]; then
+    sudo cp /etc/apache2/apache2.conf /etc/apache2/apache2.conf.bak
+fi
+
+# Append server name to Apache configuration file
+sudo grep -qxF "ServerName $HOSTNAME" /etc/apache2/apache2.conf || sudo echo "ServerName $HOSTNAME" >> /etc/apache2/apache2.conf  
+
+# Restart Apache
+sudo systemctl restart apache2
+
+openstack domain create --description $DOMAIN_DESC $DOMAIN
