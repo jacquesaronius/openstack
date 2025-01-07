@@ -6,3 +6,16 @@ export KEYSTONE_USER=keystone
 export KEYSTONE_GROUP=keystone
 export KEYSTONE_ADMIN_PASS='f7UnnPso3Z7xS1Q8'
 export REGION=RegionOne
+export DOMAIN_DESC="An Example Domain"
+export DOMAIN_NAME=example
+export PROJECT_DESC="Service Project"
+export PROJECT_NAME=service
+
+# Configure admin credentials
+export OS_USERNAME=admin
+export OS_PASSWORD=$KEYSTONE_ADMIN_PASS
+export OS_PROJECT_NAME=admin
+export OS_USER_DOMAIN_NAME=Default
+export OS_PROJECT_DOMAIN_NAME=Default
+export OS_AUTH_URL=http://$HOSTNAME:5000/v3
+export OS_IDENTITY_API_VERSION=3
