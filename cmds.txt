@@ -22,5 +22,5 @@ if [ ! -f /etc/keystone/keystone.conf.bak ]; then
 fi
 
 # Update configuration for database authentication and token provider
-sed -ie "s|^connection\s=\ssqlite.*|connection = mysql+pymysql://$KEYSTONE_DBUSER:${KEYSTONE_DBPASS//&/\\&}@$HOSTNAME/$KEYSTONE_DB|"
+sed -ie "s|^connection\s=\ssqlite.*|connection = mysql+pymysql://$KEYSTONE_DBUSER:${KEYSTONE_DBPASS//&/\\&}@$HOSTNAME/$KEYSTONE_DB|" \
     -e 's/^#provider = fernet/provider = fernet/' /etc/keystone/keystone.conf
