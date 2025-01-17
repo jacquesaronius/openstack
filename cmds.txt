@@ -14,9 +14,12 @@ sudo apt install python3-openstackclient -y
 sudo apt install mariadb-server -y
 
 # Create keystone database and user
-echo "DROP DATABASE IF EXISTS $KEYSTONE_DB; CREATE DATABASE $KEYSTONE_DB; GRANT ALL PRIVILEGES ON $KEYSTONE_DB.* TO '$KEYSTONE_DBUSER'@'localhost' IDENTIFIED BY '$KEYSTONE_DBPASS'; " | sudo mysql -u root
+echo "
 
 # Install keystone
+echo "DROP DATABASE IF EXISTS $KEYSTONE_DB; CREATE DATABASE $KEYSTONE_DB; GRANT ALL PRIVILEGES ON $KEYSTONE_DB.* TO '$KEYSTONE_DBUSER'@'localhost' IDENTIFIED BY '$KEYSTONE_DBPASS'; GRANT ALL PRIVILEGES ON $KEYSTONE_DB.* TO '$KEYSTONE_DBUSER'@'%' IDENTIFIED BY '$KEYSTONE_DBPASS';" | sudo mysql -u root
+
+# Install keystone package
 sudo apt install keystone -y
 
 # Back up the original configuration file if backup doesn't exist
@@ -25,11 +28,16 @@ if [ ! -f /etc/keystone/keystone.conf.bak ]; then
 fi
 
 # Update configuration for database authentication and token provider
-sed -i -e "s|^connection\s=\ssqlite.*|connection = mysql+pymysql://$KEYSTONE_DBUSER:${KEYSTONE_DBPASS//&/\\&}@$HOSTNAME/$KEYSTONE_DB|" \
+
+### Hacky hacky hacky ###
+sed -i -e "s|^connection\s=\ssqlite.*|connection = mysql+pymysql://$KEYSTONE_DBUSER:${KEYSTONE_DBPASS//&/\\&}@localhost/$KEYSTONE_DB|" \
+       -e 's/^#provider = fernet/provider = fernet/' /etc/keystone/keystone.conf
+###  I think this is the correct command but for some reason it is requiring localhost instead of the hostname...weird, I'll check this out later ###
+# sed -i -e "s|^connection\s=\ssqlite.*|connection = mysql+pymysql://$KEYSTONE_DBUSER:${KEYSTONE_DBPASS//&/\\&}@$HOSTNAME/$KEYSTONE_DB|" \
        -e 's/^#provider = fernet/provider = fernet/' /etc/keystone/keystone.conf
 
 # Populate the keystone database
-su -s /bin/sh -c "keystone-manage db_sync" $KEYSTONE_DB
+sudo su -s /bin/sh -c "keystone-manage db_sync" $KEYSTONE_DB
 
 # Initialize Fernet key repositories
 keystone-manage fernet_setup --keystone-user $KEYSTONE_USER --keystone-group $KEYSTONE_GROUP
@@ -53,4 +61,21 @@ sudo grep -qxF "ServerName $HOSTNAME" /etc/apache2/apache2.conf || sudo echo "Se
 # Restart Apache
 sudo systemctl restart apache2
 
-openstack domain create --description $DOMAIN_DESC $DOMAIN
+# Create an example domain
+openstack domain create --description "$DOMAIN_DESC" "$DOMAIN_NAME"
+
+# Create service project
+openstack project create --domain default --description "$SERVICE_PROJECT_DESC" "$SERVICE_PROJECT_NAME"
+
+# Create demo project
+openstack project create --domain default --description "$DEMO_PROJECT_DESC" "$DEMO_PROJECT_NAME"
+
+# Create demo user
+openstack user create --domain default --password "$DEMO_PASS" "$DEMO_USER"
+echo "Demo user password: $DEMO_PASS"
+
+# Create demo role
+openstack role create $DEMO_ROLE
+
+# Add demo role to demo project
+openstack role add --project $DEMO_PROJECT_NAME --user $DEMO_USER $DEMO_ROLE

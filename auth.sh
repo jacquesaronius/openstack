@@ -8,8 +8,13 @@ export KEYSTONE_ADMIN_PASS='f7UnnPso3Z7xS1Q8'
 export REGION=RegionOne
 export DOMAIN_DESC="An Example Domain"
 export DOMAIN_NAME=example
-export PROJECT_DESC="Service Project"
-export PROJECT_NAME=service
+export SERVICE_PROJECT_DESC="Service Project"
+export SERVICE_PROJECT_NAME=service
+export DEMO_PROJECT_DESC="Demo Project"
+export DEMO_PROJECT_NAME=myproject
+export DEMO_USER=myuser
+export DEMO_PASS=$(openssl rand -base64 12)
+export DEMO_ROLE=myrole
 
 # Configure admin credentials
 export OS_USERNAME=admin
