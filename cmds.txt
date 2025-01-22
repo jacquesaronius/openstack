@@ -23,17 +23,19 @@ echo "DROP DATABASE IF EXISTS $KEYSTONE_DB; CREATE DATABASE $KEYSTONE_DB; GRANT 
 sudo apt install keystone -y
 
 # Back up the original configuration file if backup doesn't exist
+sudo bash -c '
 if [ ! -f /etc/keystone/keystone.conf.bak ]; then
     cp /etc/keystone/keystone.conf /etc/keystone/keystone.conf.bak
 fi
+'
 
 # Update configuration for database authentication and token provider
 
 ### Hacky hacky hacky ###
-sed -i -e "s|^connection\s=\ssqlite.*|connection = mysql+pymysql://$KEYSTONE_DBUSER:${KEYSTONE_DBPASS//&/\\&}@localhost/$KEYSTONE_DB|" \
+sudo sed -i -e "s|^connection\s=\ssqlite.*|connection = mysql+pymysql://$KEYSTONE_DBUSER:${KEYSTONE_DBPASS//&/\\&}@localhost/$KEYSTONE_DB|" \
        -e 's/^#provider = fernet/provider = fernet/' /etc/keystone/keystone.conf
 ###  I think this is the correct command but for some reason it is requiring localhost instead of the hostname...weird, I'll check this out later ###
-# sed -i -e "s|^connection\s=\ssqlite.*|connection = mysql+pymysql://$KEYSTONE_DBUSER:${KEYSTONE_DBPASS//&/\\&}@$HOSTNAME/$KEYSTONE_DB|" \
+# sudo sed -i -e "s|^connection\s=\ssqlite.*|connection = mysql+pymysql://$KEYSTONE_DBUSER:${KEYSTONE_DBPASS//&/\\&}@$HOSTNAME/$KEYSTONE_DB|" \
        -e 's/^#provider = fernet/provider = fernet/' /etc/keystone/keystone.conf
 
 # Populate the keystone database
@@ -79,3 +81,40 @@ openstack role create $DEMO_ROLE
 
 # Add demo role to demo project
 openstack role add --project $DEMO_PROJECT_NAME --user $DEMO_USER $DEMO_ROLE
+
+
+### Install and configure glance ###
+
+# Create database
+echo "DROP DATABASE IF EXISTS $GLANCE_DB; CREATE DATABASE $GLANCE_DB; GRANT ALL PRIVILEGES ON $GLANCE_DB.* TO '$GLANCE_DBUSER'@'localhost' IDENTIFIED BY '$GLANCE_DBPASS'; GRANT ALL PRIVILEGES ON $GLANCE_DB.* TO '$GLANCE_DBUSER'@'%' IDENTIFIED BY '$GLANCE_DBPASS';" | sudo mysql -u root
+
+
+# Create Glance user
+openstack user create --domain default --password "$GLANCE_PASS" "$GLANCE_USER"
+
+# Create Glance service entity
+openstack service create --name glance --description "$GLANCE_DESC" image
+
+# Create Glance service API endpoints
+openstack endpoint create --region $REGION image public http://$HOSTNAME:9292
+openstack endpoint create --region $REGION image internal http://$HOSTNAME:9292
+openstack endpoint create --region $REGION image admin http://$HOSTNAME:9292
+
+# Create quotas
+### TBD ###
+
+# Install Glance
+sudo apt install glance -y
+
+# Back up the original configuration file if backup doesn't exist
+sudo bash -c '
+if [ ! -f /etc/glance/glance-api.conf.bak ]; then
+    cp /etc/glance/glance-api.conf /etc/glance/glance-api.conf.bak
+fi
+'
+
+# Update Glance configuration
+sudo sed -i -e "s|^connection\s=\ssqlite.*|connection = mysql+pymysql://$GLANCE_DBUSER:${GLANCE_DBPASS//&/\\&}@localhost/$GLANCE_DB|" \
+            -e 's|^#www_authenticate_uri =.*|www_authenticate_uri = http://$HOSTNAME:5000|' \
+            -e 's|^#auth_uri =.*|auth_uri = http://$HOSTNAME:5000|' \
++         /etc/keystone/keystone.conf

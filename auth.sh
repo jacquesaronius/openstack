@@ -30,3 +30,5 @@ export GLANCE_DB=glance
 export GLANCE_DBUSER=glance
 export GLANCE_DBPASS='iqvm8qQU5837fbVv'
 export GLANCE_USER=glance
+export GLANCE_PASS='yQGdV3VxbY9TN4HQ'
+export GLANCE_DESC="OpenStack Image Service"
