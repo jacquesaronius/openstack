@@ -117,4 +117,6 @@ fi
 sudo sed -i -e "s|^connection\s=\ssqlite.*|connection = mysql+pymysql://$GLANCE_DBUSER:${GLANCE_DBPASS//&/\\&}@localhost/$GLANCE_DB|" \
             -e 's|^#www_authenticate_uri =.*|www_authenticate_uri = http://$HOSTNAME:5000|' \
             -e 's|^#auth_uri =.*|auth_uri = http://$HOSTNAME:5000|' \
-+         /etc/keystone/keystone.conf
+          /etc/glance/glance-api.conf
+
+
