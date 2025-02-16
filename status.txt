@@ -1,0 +1,91 @@
+Model      Controller         Cloud/Region       Version  SLA          Timestamp
+openstack  openstack-default  openstack/default  3.1.10   unsupported  18:08:02Z
+
+App                       Version  Status  Scale  Charm                   Channel        Rev  Exposed  Message
+ceph-mon                  18.2.4   active      3  ceph-mon                reef/stable    229  no       Unit is ready and clustered
+ceph-osd                  18.2.4   active      3  ceph-osd                reef/stable    616  no       Unit is ready (1 OSD)
+cinder                    23.0.0   active      1  cinder                  2023.2/stable  691  no       Unit is ready
+cinder-ceph               23.0.0   active      1  cinder-ceph             2023.2/stable  528  no       Unit is ready
+cinder-mysql-router       8.0.41   active      1  mysql-router            8.0/stable     257  no       Unit is ready
+dashboard-mysql-router    8.0.41   active      1  mysql-router            8.0/stable     257  no       Unit is ready
+glance                    27.0.0   active      1  glance                  2023.2/stable  622  no       Unit is ready
+glance-mysql-router       8.0.41   active      1  mysql-router            8.0/stable     257  no       Unit is ready
+keystone                  24.0.0   active      1  keystone                2023.2/stable  682  no       Application Ready
+keystone-mysql-router     8.0.41   active      1  mysql-router            8.0/stable     257  no       Unit is ready
+mysql-innodb-cluster      8.0.41   active      3  mysql-innodb-cluster    8.0/stable     158  no       Unit is ready: Mode: R/W, Cluster is ONLINE and can tolerate up to ONE failure.
+ncc-mysql-router          8.0.41   active      1  mysql-router            8.0/stable     257  no       Unit is ready
+neutron-api               23.1.0   active      1  neutron-api             2023.2/stable  596  no       Unit is ready
+neutron-api-mysql-router  8.0.41   active      1  mysql-router            8.0/stable     257  no       Unit is ready
+neutron-api-plugin-ovn    23.1.0   active      1  neutron-api-plugin-ovn  2023.2/stable  113  no       Unit is ready
+nova-cloud-controller     28.2.0   active      1  nova-cloud-controller   2023.2/stable  759  no       Unit is ready
+nova-compute              28.2.0   active      3  nova-compute            2023.2/stable  773  no       Unit is ready
+openstack-dashboard       23.3.0   error       1  openstack-dashboard     2023.2/stable  679  no       hook failed: "update-status"
+ovn-central               22.09.1  active      3  ovn-central             23.09/stable   234  no       Unit is ready (leader: ovnnb_db, ovnsb_db)
+ovn-chassis               23.09.3  error       3  ovn-chassis             23.09/stable   296  no       hook failed: "ovsdb-relation-joined"
+placement                 10.0.0   active      1  placement               2023.2/stable  100  no       Unit is ready
+placement-mysql-router    8.0.41   active      1  mysql-router            8.0/stable     257  no       Unit is ready
+rabbitmq-server           3.9.27   active      1  rabbitmq-server         3.9/stable     227  no       Unit is ready
+vault                     1.8.8    active      1  vault                   1.8/stable     372  no       Unit is ready (active: true, mlock: disabled)
+vault-mysql-router        8.0.41   active      1  mysql-router            8.0/stable     257  no       Unit is ready
+
+Unit                           Workload  Agent  Machine  Public address  Ports           Message
+ceph-mon/0*                    active    idle   0/lxd/4  192.168.64.81                   Unit is ready and clustered
+ceph-mon/1                     active    idle   1/lxd/4  192.168.64.83                   Unit is ready and clustered
+ceph-mon/2                     active    idle   2/lxd/6  192.168.64.82                   Unit is ready and clustered
+ceph-osd/0*                    active    idle   0        192.168.64.50                   Unit is ready (1 OSD)
+ceph-osd/1                     active    idle   1        192.168.64.60                   Unit is ready (1 OSD)
+ceph-osd/2                     active    idle   2        192.168.64.61                   Unit is ready (1 OSD)
+cinder/0*                      active    idle   1/lxd/5  192.168.64.84   8776/tcp        Unit is ready
+  cinder-ceph/0*               active    idle            192.168.64.84                   Unit is ready
+  cinder-mysql-router/0*       active    idle            192.168.64.84                   Unit is ready
+glance/0*                      active    idle   2/lxd/5  192.168.64.80   9292/tcp        Unit is ready
+  glance-mysql-router/0*       active    idle            192.168.64.80                   Unit is ready
+keystone/0*                    active    idle   0/lxd/3  192.168.64.75   5000/tcp        Unit is ready
+  keystone-mysql-router/0*     active    idle            192.168.64.75                   Unit is ready
+mysql-innodb-cluster/0*        active    idle   0/lxd/0  192.168.64.67                   Unit is ready: Mode: R/W, Cluster is ONLINE and can tolerate up to ONE failure.
+mysql-innodb-cluster/1         active    idle   1/lxd/0  192.168.64.69                   Unit is ready: Mode: R/O, Cluster is ONLINE and can tolerate up to ONE failure.
+mysql-innodb-cluster/2         active    idle   2/lxd/0  192.168.64.68                   Unit is ready: Mode: R/O, Cluster is ONLINE and can tolerate up to ONE failure.
+neutron-api/0*                 active    idle   1/lxd/2  192.168.64.74   9696/tcp        Unit is ready
+  neutron-api-mysql-router/0*  active    idle            192.168.64.74                   Unit is ready
+  neutron-api-plugin-ovn/0*    active    idle            192.168.64.74                   Unit is ready
+nova-cloud-controller/0*       active    idle   2/lxd/3  192.168.64.77   8774-8775/tcp   Unit is ready
+  ncc-mysql-router/0*          active    idle            192.168.64.77                   Unit is ready
+nova-compute/0*                active    idle   0        192.168.64.50                   Unit is ready
+  ovn-chassis/0                error     idle            192.168.64.50                   hook failed: "ovsdb-relation-joined"
+nova-compute/1                 active    idle   1        192.168.64.60                   Unit is ready
+  ovn-chassis/1                error     idle            192.168.64.60                   hook failed: "ovsdb-relation-joined"
+nova-compute/2                 active    idle   2        192.168.64.61                   Unit is ready
+  ovn-chassis/2*               error     idle            192.168.64.61                   hook failed: "ovsdb-relation-joined"
+openstack-dashboard/0*         error     idle   1/lxd/3  192.168.64.79   80,443/tcp      hook failed: "update-status"
+  dashboard-mysql-router/0*    active    idle            192.168.64.79                   Unit is ready
+ovn-central/0*                 active    idle   0/lxd/2  192.168.64.71   6641-6642/tcp   Unit is ready (leader: ovnnb_db, ovnsb_db)
+ovn-central/1                  active    idle   1/lxd/1  192.168.64.73   6641-6642/tcp   Unit is ready (northd: active)
+ovn-central/2                  active    idle   2/lxd/1  192.168.64.72   6641-6642/tcp   Unit is ready
+placement/0*                   active    idle   2/lxd/4  192.168.64.78   8778/tcp        Unit is ready
+  placement-mysql-router/0*    active    idle            192.168.64.78                   Unit is ready
+rabbitmq-server/0*             active    idle   2/lxd/2  192.168.64.76   5672,15672/tcp  Unit is ready
+vault/0*                       active    idle   0/lxd/1  192.168.64.70   8200/tcp        Unit is ready (active: true, mlock: disabled)
+  vault-mysql-router/0*        active    idle            192.168.64.70                   Unit is ready
+
+Machine  State    Address        Inst id               Base          AZ  Message
+0        started  192.168.64.50  manual:192.168.64.50  ubuntu@22.04      Manually provisioned machine
+0/lxd/0  started  192.168.64.67  juju-2e5aba-0-lxd-0   ubuntu@22.04      Container started
+0/lxd/1  started  192.168.64.70  juju-2e5aba-0-lxd-1   ubuntu@22.04      Container started
+0/lxd/2  started  192.168.64.71  juju-2e5aba-0-lxd-2   ubuntu@22.04      Container started
+0/lxd/3  started  192.168.64.75  juju-2e5aba-0-lxd-3   ubuntu@22.04      Container started
+0/lxd/4  started  192.168.64.81  juju-2e5aba-0-lxd-4   ubuntu@22.04      Container started
+1        started  192.168.64.60  manual:192.168.64.60  ubuntu@22.04      Manually provisioned machine
+1/lxd/0  started  192.168.64.69  juju-2e5aba-1-lxd-0   ubuntu@22.04      Container started
+1/lxd/1  started  192.168.64.73  juju-2e5aba-1-lxd-1   ubuntu@22.04      Container started
+1/lxd/2  started  192.168.64.74  juju-2e5aba-1-lxd-2   ubuntu@22.04      Container started
+1/lxd/3  started  192.168.64.79  juju-2e5aba-1-lxd-3   ubuntu@22.04      Container started
+1/lxd/4  started  192.168.64.83  juju-2e5aba-1-lxd-4   ubuntu@22.04      Container started
+1/lxd/5  started  192.168.64.84  juju-2e5aba-1-lxd-5   ubuntu@22.04      Container started
+2        started  192.168.64.61  manual:192.168.64.61  ubuntu@22.04      Manually provisioned machine
+2/lxd/0  started  192.168.64.68  juju-2e5aba-2-lxd-0   ubuntu@22.04      Container started
+2/lxd/1  started  192.168.64.72  juju-2e5aba-2-lxd-1   ubuntu@22.04      Container started
+2/lxd/2  started  192.168.64.76  juju-2e5aba-2-lxd-2   ubuntu@22.04      Container started
+2/lxd/3  started  192.168.64.77  juju-2e5aba-2-lxd-3   ubuntu@22.04      Container started
+2/lxd/4  started  192.168.64.78  juju-2e5aba-2-lxd-4   ubuntu@22.04      Container started
+2/lxd/5  started  192.168.64.80  juju-2e5aba-2-lxd-5   ubuntu@22.04      Container started
+2/lxd/6  started  192.168.64.82  juju-2e5aba-2-lxd-6   ubuntu@22.04      Container started
